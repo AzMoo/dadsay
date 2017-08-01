@@ -2,6 +2,7 @@ extern crate futures;
 extern crate hyper;
 extern crate hyper_tls;
 extern crate tokio_core;
+// extern crate unicode_segmentation;
 
 use std::str;
 use futures::{Future, Stream};
@@ -10,6 +11,10 @@ use hyper::header::{Accept, qitem};
 use hyper::mime;
 use hyper_tls::HttpsConnector;
 use tokio_core::reactor::Core;
+// use unicode_segmentation::UnicodeSegmentation;
+
+const TERMWIDTH: i32 = 80;
+const FACEBUFFER: i32 = 3;
 
 fn get_max_line_length(lines: &Vec<&str>) -> usize {
     let mut largest = lines[0].len();
@@ -21,6 +26,36 @@ fn get_max_line_length(lines: &Vec<&str>) -> usize {
 
     largest
 }
+
+
+fn split_joke_into_lines(joke: &str, line_width: i32) -> Vec<String> {
+    let mut newlines = Vec::<String>::new();
+
+    for line in joke.lines() {
+        if line.len() > line_width as usize {
+            let mut current_line = Vec::<String>::new();
+            
+            for word in line.split(" ") {
+                let joinedline = current_line.join(" ");
+                let this_line_length = joinedline.len() + word.len();
+
+                if this_line_length > line_width as usize {
+                    newlines.push(joinedline);
+                    current_line = Vec::<String>::new();
+                }
+
+                current_line.push(word.to_owned());
+            }
+
+            newlines.push(current_line.join(" "));
+        } else {
+            newlines.push(line.to_owned());
+        }
+    }
+
+    newlines
+}
+
 
 fn main() {
     // Create our Core Event Loop
@@ -36,19 +71,22 @@ fn main() {
         "****  ******  ** *******",
         "***     ******* ** ******",
         "***       **        *  **",
-        "    *|/------  -------\\ ** *",
+        "    *|\\------  \\------\\ ** *",
         "    |       |=|       :===**",
         "    |  O  |   | O   |  }}|*",
         "    |---- |   ----  |  |*",
         "    |    |___       |\\/",
         "    |              |",
-        "    \\   -----     |",
-        "        \\           |",
+        "     \\  \\ ----/    |",
+        "      \\  \\___/     |",
         "        -__ -- -/"
     ];
 
     let max = get_max_line_length(&dadface);
-    println!("Dadface max line length: {}", max);
+    // We want a gap of at least FACEBUFFER spaces to the left
+    // of the dadface which means we have this much 
+    // space to fit the joke
+    let jokewidth = TERMWIDTH - FACEBUFFER - (max as i32);
 
     // Create a handle that can be used to access the event loop
     let handle = core.handle();
@@ -76,7 +114,8 @@ fn main() {
     let work = client.request(req).and_then(|res| {
         res.body().concat2().and_then(move |body: Chunk| {
             let joke = str::from_utf8(&body).unwrap();
-            println!("{}", joke);
+            let jokelines = split_joke_into_lines(joke, jokewidth);
+            println!("{}", jokelines.join("\n"));
             Ok(())
         })
     });
