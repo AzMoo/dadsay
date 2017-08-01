@@ -11,12 +11,44 @@ use hyper::mime;
 use hyper_tls::HttpsConnector;
 use tokio_core::reactor::Core;
 
+fn get_max_line_length(lines: &Vec<&str>) -> usize {
+    let mut largest = lines[0].len();
+    for &line in lines.iter() {
+        if line.len() > largest {
+            largest = line.len();
+        }
+    }
+
+    largest
+}
+
 fn main() {
     // Create our Core Event Loop
     let mut core = match Core::new() {
         Ok(core) => core,
         Err(_) => panic!("Couldn't start event loop!")
     };
+
+    let dadface = vec![
+        "      ***********",
+        "    ***** ***********",
+        "    ** ****** *** ********",
+        "****  ******  ** *******",
+        "***     ******* ** ******",
+        "***       **        *  **",
+        "    *|/------  -------\\ ** *",
+        "    |       |=|       :===**",
+        "    |  O  |   | O   |  }}|*",
+        "    |---- |   ----  |  |*",
+        "    |    |___       |\\/",
+        "    |              |",
+        "    \\   -----     |",
+        "        \\           |",
+        "        -__ -- -/"
+    ];
+
+    let max = get_max_line_length(&dadface);
+    println!("Dadface max line length: {}", max);
 
     // Create a handle that can be used to access the event loop
     let handle = core.handle();
