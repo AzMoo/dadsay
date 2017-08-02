@@ -14,7 +14,7 @@ use tokio_core::reactor::Core;
 // use unicode_segmentation::UnicodeSegmentation;
 
 const TERMWIDTH: i32 = 80;
-const FACEBUFFER: i32 = 3;
+const PADDING: i32 = 3;
 
 fn get_max_line_length(lines: &Vec<&str>) -> usize {
     let mut largest = lines[0].len();
@@ -24,7 +24,7 @@ fn get_max_line_length(lines: &Vec<&str>) -> usize {
         }
     }
 
-    largest + 6
+    largest
 }
 
 
@@ -69,7 +69,12 @@ fn print_joke_and_dadface(joke: Vec<String>, dadface: Vec<&str>, jokewidth: i32)
             jokestring = &joke[joke_idx as usize];
         }
 
-        println!("    {:width$}    {}", jokestring, dadface[idx], width = jokewidth as usize);
+        println!(
+            "{:lpad$}{:width$}{}", 
+            "", jokestring, dadface[idx], 
+            lpad = PADDING as usize, 
+            width = (jokewidth + PADDING) as usize
+        );
     }
 }
 
@@ -100,10 +105,10 @@ fn main() {
     ];
 
     let max: usize = get_max_line_length(&dadface);
-    // We want a gap of at least FACEBUFFER spaces to the left
-    // of the dadface which means we have this much 
+    // We want a gap of at least PADDING spaces on each
+    // side of the joke which means we have this much 
     // space to fit the joke
-    let jokewidth: i32 = TERMWIDTH - FACEBUFFER - (max as i32);
+    let jokewidth: i32 = TERMWIDTH - PADDING * 2 - (max as i32);
 
     // Create a handle that can be used to access the event loop
     let handle = core.handle();
