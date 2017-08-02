@@ -24,7 +24,7 @@ fn get_max_line_length(lines: &Vec<&str>) -> usize {
         }
     }
 
-    largest
+    largest + 6
 }
 
 
@@ -57,6 +57,23 @@ fn split_joke_into_lines(joke: &str, line_width: i32) -> Vec<String> {
 }
 
 
+fn print_joke_and_dadface(joke: Vec<String>, dadface: Vec<&str>, jokewidth: i32) {
+
+    let text_bottom = dadface.len() - 4;
+
+    for idx in 0..dadface.len() {
+        let mut jokestring = "";
+        
+        if idx > text_bottom - joke.len() && idx <= text_bottom {
+            let joke_idx = idx as i32 - text_bottom as i32 + joke.len() as i32 - 1;
+            jokestring = &joke[joke_idx as usize];
+        }
+
+        println!("    {:width$}    {}", jokestring, dadface[idx], width = jokewidth as usize);
+    }
+}
+
+
 fn main() {
     // Create our Core Event Loop
     let mut core = match Core::new() {
@@ -65,28 +82,28 @@ fn main() {
     };
 
     let dadface = vec![
-        "      ***********",
-        "    ***** ***********",
-        "    ** ****** *** ********",
-        "****  ******  ** *******",
-        "***     ******* ** ******",
-        "***       **        *  **",
-        "    *|\\------  \\------\\ ** *",
-        "    |       |=|       :===**",
-        "    |  O  |   | O   |  }}|*",
-        "    |---- |   ----  |  |*",
-        "    |    |___       |\\/",
-        "    |              |",
-        "     \\  \\ ----/    |",
-        "      \\  \\___/     |",
-        "        -__ -- -/"
+        r#"      ***********"#,
+        r#"    ***** ***********"#,
+        r#"    ** ****** *** ********"#,
+        r#"****  ******  ** *******"#,
+        r#"***     ******* ** ******"#,
+        r#"***       **        *  **"#,
+        r#"    *|\------  \------\ ** *"#,
+        r#"    |       |=|       :===**"#,
+        r#"    |  O  |   | O   |  }|*"#,
+        r#"    |---- |   ----  |  |*"#,
+        r#"    |    |___       |\/"#,
+        r#"    |              |"#,
+        r#"     \  \ ----/    |"#,
+        r#"      \  \___/     |"#,
+        r#"        -__ -- -/"#
     ];
 
-    let max = get_max_line_length(&dadface);
+    let max: usize = get_max_line_length(&dadface);
     // We want a gap of at least FACEBUFFER spaces to the left
     // of the dadface which means we have this much 
     // space to fit the joke
-    let jokewidth = TERMWIDTH - FACEBUFFER - (max as i32);
+    let jokewidth: i32 = TERMWIDTH - FACEBUFFER - (max as i32);
 
     // Create a handle that can be used to access the event loop
     let handle = core.handle();
@@ -115,7 +132,7 @@ fn main() {
         res.body().concat2().and_then(move |body: Chunk| {
             let joke = str::from_utf8(&body).unwrap();
             let jokelines = split_joke_into_lines(joke, jokewidth);
-            println!("{}", jokelines.join("\n"));
+            print_joke_and_dadface(jokelines, dadface, jokewidth);
             Ok(())
         })
     });
