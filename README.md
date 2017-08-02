@@ -1,5 +1,7 @@
 # dadsay
 
+[![Build Status](https://travis-ci.org/AzMoo/dadsay.svg?branch=master)](https://travis-ci.org/AzMoo/dadsay)
+
 A console application that takes a joke from the great https://icanhazdadjoke.com/ API and
 prints it with an ASCII Dad, obviously inspired by the venerable cowsay.
 
