@@ -2,7 +2,6 @@ extern crate futures;
 extern crate hyper;
 extern crate hyper_tls;
 extern crate tokio_core;
-// extern crate unicode_segmentation;
 
 use std::str;
 use futures::{Future, Stream};
@@ -11,10 +10,9 @@ use hyper::header::{Accept, qitem};
 use hyper::mime;
 use hyper_tls::HttpsConnector;
 use tokio_core::reactor::Core;
-// use unicode_segmentation::UnicodeSegmentation;
 
 const TERMWIDTH: i32 = 80;
-const PADDING: i32 = 3;
+const PADDING: i32 = 5;
 
 fn get_max_line_length(lines: &Vec<&str>) -> usize {
     let mut largest = lines[0].len();
@@ -59,7 +57,9 @@ fn split_joke_into_lines(joke: &str, line_width: i32) -> Vec<String> {
 
 fn print_joke_and_dadface(joke: Vec<String>, dadface: Vec<&str>, jokewidth: i32) {
 
-    let text_bottom = dadface.len() - 4;
+    let diff = dadface.len() - joke.len() - 1;
+    let top_padding = diff / 2;
+    let text_bottom = top_padding + joke.len();
 
     for idx in 0..dadface.len() {
         let mut jokestring = "";
@@ -141,5 +141,7 @@ fn main() {
             Ok(())
         })
     });
+
+    // Actually run the request
     core.run(work).unwrap();
 }
